@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { classnames } from "tailwindcss-classnames";
+import { handleFetch } from "./Fetch";
 
 export interface AuthInfo {
   server: string;
@@ -20,7 +21,7 @@ interface LoginResponse {
   user_id: string;
 }
 
-export default function Auth(props: {
+export default function Login(props: {
   setAuthInfo: React.Dispatch<React.SetStateAction<AuthInfo | null>>;
 }): JSX.Element {
   const [server, setServer] = useState("");
@@ -29,39 +30,35 @@ export default function Auth(props: {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const fetchContent: LoginRequest = {
+    type: "m.login.password",
+    user: user,
+    password: password,
+  };
+
   return (
     <form
       className={classnames("flex", "flex-col", "w-96")}
-      onSubmit={(e) => {
-        e.preventDefault();
+      onSubmit={(event) => {
+        event.preventDefault();
         setLoading(true);
-        const content: LoginRequest = {
-          type: "m.login.password",
-          user: user,
-          password: password,
-        };
-        fetch(`https://${server}/_matrix/client/r0/login`, {
+        setError("");
+        handleFetch<LoginResponse>({
+          url: `https://${server}/_matrix/client/r0/login`,
           method: "POST",
-          body: JSON.stringify(content),
-        })
-          .then((response: Response) => {
-            if (!response.ok) {
-              setError(response.statusText);
-              throw Error(response.statusText);
-            }
-            return response.json() as Promise<LoginResponse>;
-          })
-          .then((data: LoginResponse) => {
+          body: JSON.stringify(fetchContent),
+          onLoad: (data) => {
             setError("");
-            props.setAuthInfo({ server, user, token: data.access_token });
-          })
-          .catch(() => {
-            setError("Login failed");
-          })
-          .finally(() => {
             setPassword("******");
-            setLoading(true);
-          });
+            setLoading(false);
+            props.setAuthInfo({ server, user, token: data.access_token });
+          },
+          onError: () => {
+            setError("Login failed");
+            setPassword("******");
+            setLoading(false);
+          },
+        });
       }}
     >
       <label className={classnames("my-2")}>
@@ -70,7 +67,7 @@ export default function Auth(props: {
           className={classnames("mx-2")}
           type="text"
           value={server}
-          onChange={(e) => setServer(e.target.value)}
+          onChange={(event) => setServer(event.target.value)}
           placeholder="matrix.example.com"
         />
       </label>
@@ -80,7 +77,7 @@ export default function Auth(props: {
           className={classnames("mx-2")}
           type="text"
           value={user}
-          onChange={(e) => setUser(e.target.value)}
+          onChange={(event) => setUser(event.target.value)}
           placeholder="user@example.com"
         />
       </label>
@@ -90,7 +87,7 @@ export default function Auth(props: {
           className={classnames("mx-2")}
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(event) => setPassword(event.target.value)}
           placeholder="password"
         />
       </label>

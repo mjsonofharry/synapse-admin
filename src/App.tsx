@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { classnames } from "tailwindcss-classnames";
-import Auth, { AuthInfo } from "./components/Auth";
+import Auth, { AuthInfo } from "./components/Login";
 import Dashboard from "./components/Dashboard";
 
 function App() {
