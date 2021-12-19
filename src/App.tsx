@@ -1,24 +1,17 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { classnames } from "tailwindcss-classnames";
+import Auth, { AuthInfo } from "./components/Auth";
+import Dashboard from "./components/Dashboard";
 
 function App() {
+  const [authInfo, setAuthInfo] = useState<AuthInfo | null>(null);
+
+  console.log(authInfo)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className={classnames("m-10")}>
+      {!authInfo && <Auth setAuthInfo={setAuthInfo} />}
+      {authInfo && <Dashboard authInfo={authInfo} />}
     </div>
   );
 }
