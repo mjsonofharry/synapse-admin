@@ -51,6 +51,31 @@ function Row<T>(props: { data: T; columns: ColumnDefs<T> }): JSX.Element {
   );
 }
 
+function ColumnHeader(props: {
+  label: string;
+  sorting: boolean;
+  sortDirection: number;
+  onClick: () => void;
+}) {
+  return (
+    <td className={classnames("pr-3")}>
+      <button onClick={props.onClick} className={classnames("flex", "w-full")}>
+        <p className={classnames("text-lg")}>{props.label}</p>
+        {props.sorting && (
+          <figure className={classnames("mt-1", "ml-1", "w-4", "h-4")}>
+            {props.sortDirection === 1 ? (
+              <ChevronUpIcon />
+            ) : (
+              <ChevronDownIcon />
+            )}
+          </figure>
+        )}
+        {!props.sorting && <mark className={classnames("ml-1", "w-4")} />}
+      </button>
+    </td>
+  );
+}
+
 export default function Table<T>(props: {
   data: { key: string; value: T }[];
   columns: ColumnDefs<T>;
@@ -82,35 +107,20 @@ export default function Table<T>(props: {
       <thead>
         <tr>
           {(Object.keys(props.columns) as Array<keyof T>).map((k) => (
-            <td key={k as string} className={classnames("pr-3")}>
-              <button
-                onClick={() => {
-                  if (sortKey === k) {
-                    setSortDirection(-sortDirection);
-                  } else {
-                    setSortKey(k);
-                    setSortDirection(1);
-                  }
-                }}
-                className={classnames("flex")}
-              >
-                <p className={classnames("text-lg")}>
-                  {props.columns[k].label}
-                </p>
-                {k === sortKey && (
-                  <figure className={classnames("mt-1", "ml-1", "w-4", "h-4")}>
-                    {sortDirection === 1 ? (
-                      <ChevronUpIcon />
-                    ) : (
-                      <ChevronDownIcon />
-                    )}
-                  </figure>
-                )}
-                {k !== sortKey && (
-                  <mark className={classnames("ml-1", "w-4")} />
-                )}
-              </button>
-            </td>
+            <ColumnHeader
+              key={k as string}
+              label={props.columns[k].label}
+              sorting={k === sortKey}
+              sortDirection={sortDirection}
+              onClick={() => {
+                if (sortKey === k) {
+                  setSortDirection(-sortDirection);
+                } else {
+                  setSortKey(k);
+                  setSortDirection(1);
+                }
+              }}
+            />
           ))}
         </tr>
       </thead>
