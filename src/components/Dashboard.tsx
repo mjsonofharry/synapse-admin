@@ -1,8 +1,13 @@
-import { ClipboardCheckIcon, LogoutIcon, UsersIcon } from "@heroicons/react/solid";
+import {
+  ClipboardCheckIcon,
+  LogoutIcon,
+  UsersIcon,
+} from "@heroicons/react/solid";
 import React, { useState } from "react";
 import { classnames } from "tailwindcss-classnames";
 import { AuthInfo } from "./Login";
-import UserTable from "./Users";
+import Registration from "./Registration";
+import Users from "./Users";
 
 type AppView = "users" | "registration";
 
@@ -62,13 +67,14 @@ export default function Dashboard(props: {
           selected={false}
           label="Logout"
           onClick={() => {
-            props.setAuthInfo(null)
-            window.location.reload()
+            props.setAuthInfo(null);
+            window.location.reload();
           }}
           iconType={LogoutIcon}
         />
       </div>
-      {appView === "users" && <UserTable authInfo={props.authInfo} />}
+      {appView === "users" && <Users authInfo={props.authInfo} />}
+      {appView === "registration" && <Registration authInfo={props.authInfo} />}
     </main>
   );
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { classnames } from "tailwindcss-classnames";
-import { handleFetch } from "./Fetch";
+import { handleFetch } from "./generic/Fetch";
 
 export interface AuthInfo {
   server: string;
@@ -39,7 +39,15 @@ export default function Login(props: {
   return (
     <main className={classnames("flex", "justify-center", "h-full")}>
       <form
-        className={classnames("flex", "flex-col", "w-96", "h-full", "p-4", "bg-gray-50", "shadow-sm")}
+        className={classnames(
+          "flex",
+          "flex-col",
+          "w-96",
+          "h-full",
+          "p-4",
+          "bg-gray-50",
+          "shadow-md"
+        )}
         onSubmit={(event) => {
           event.preventDefault();
           setLoading(true);

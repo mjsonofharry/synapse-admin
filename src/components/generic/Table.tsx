@@ -29,8 +29,16 @@ function Cell<T>(props: { data: T[keyof T]; column: Column }): JSX.Element {
     ? props.column.formatter(props.data)
     : props.data;
   return (
-    <td className={classnames("pr-3")}>
-      <p className={classnames("max-w-xs", "overflow-hidden")}>
+    <td className={classnames("pr-3", "h-5")}>
+      <p
+        title={formattedData as string}
+        className={classnames(
+          "ml-1",
+          "text-base",
+          "max-w-xs",
+          "overflow-hidden"
+        )}
+      >
         {formattedData}
       </p>
     </td>
@@ -39,7 +47,14 @@ function Cell<T>(props: { data: T[keyof T]; column: Column }): JSX.Element {
 
 function Row<T>(props: { data: T; columns: ColumnDefs<T> }): JSX.Element {
   return (
-    <tr>
+    <tr
+      className={classnames(
+        "bg-gray-900",
+        "text-gray-200",
+        "border-b",
+        "border-gray-100"
+      )}
+    >
       {(Object.keys(props.columns) as Array<keyof T>).map((k) => (
         <Cell
           key={k as string}
@@ -51,7 +66,7 @@ function Row<T>(props: { data: T; columns: ColumnDefs<T> }): JSX.Element {
   );
 }
 
-function ColumnHeader(props: {
+function HeaderCell(props: {
   label: string;
   sorting: boolean;
   sortDirection: number;
@@ -60,9 +75,9 @@ function ColumnHeader(props: {
   return (
     <td className={classnames("pr-3")}>
       <button onClick={props.onClick} className={classnames("flex", "w-full")}>
-        <p className={classnames("text-lg")}>{props.label}</p>
+        <p className={classnames("ml-1", "text-sm")}>{props.label}</p>
         {props.sorting && (
-          <figure className={classnames("mt-1", "ml-1", "w-4", "h-4")}>
+          <figure className={classnames("mt-0.5", "ml-1", "w-4", "h-4")}>
             {props.sortDirection === 1 ? (
               <ChevronUpIcon />
             ) : (
@@ -103,11 +118,11 @@ export default function Table<T>(props: {
       : props.data;
 
   return (
-    <table>
+    <table className={classnames("w-full")}>
       <thead>
-        <tr>
+        <tr className={classnames("bg-gray-50")}>
           {(Object.keys(props.columns) as Array<keyof T>).map((k) => (
-            <ColumnHeader
+            <HeaderCell
               key={k as string}
               label={props.columns[k].label}
               sorting={k === sortKey}

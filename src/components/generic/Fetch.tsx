@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 
 type Method = "GET" | "PUT" | "POST" | "DELETE";
 
@@ -32,24 +32,29 @@ export function handleFetch<T>(args: {
     });
 }
 
-export function Fetcher<T>(props: {
+interface Fetch {
   url: string;
   method: Method;
   body?: string;
   token?: string;
+}
+
+interface FetchProps<T> extends Fetch {
   children: (args: {
     data?: T;
     loading: boolean;
     error: boolean;
   }) => JSX.Element;
-}) {
-  const [shouldLoad, setShouldLoad] = useState(true);
+}
+
+export function Fetcher<T>(props: FetchProps<T>) {
+  const [requested, setRequested] = useState<Fetch | null>(null);
   const [data, setData] = useState<T | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  if (shouldLoad) {
-    setShouldLoad(false);
+  if (requested !== (props as Fetch)) {
+    setRequested(props as Fetch);
     handleFetch<T>({
       url: props.url,
       method: props.method,
