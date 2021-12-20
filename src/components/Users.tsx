@@ -13,6 +13,7 @@ import {
   ShieldCheckIcon,
   UserIcon,
 } from "@heroicons/react/solid";
+import moment from "moment";
 
 interface User {
   name: string;
@@ -26,59 +27,54 @@ interface User {
   creation_ts: number;
 }
 
-function UserAttribute(props: {
+interface ColumnMeta {
   label: string;
-  iconType: (props: React.ComponentProps<"svg">) => JSX.Element;
-}): JSX.Element {
-  const icon = React.createElement(props.iconType, {
-    className: classnames("w-4", "h-4", "mt-1"),
-  });
+  formatter?: (x: any) => string;
+}
+
+function formatNumericalBoolean(n: number): string {
+  return n === 1 ? "Yes" : "No";
+}
+
+function formatDate(ts: number): string {
+  return moment.unix(ts).format("YYYY/MM/DD, hh:mm a");
+}
+
+const userColumns: Record<keyof User, ColumnMeta> = {
+  name: { label: "Name" },
+  is_guest: { label: "Guest", formatter: formatNumericalBoolean },
+  admin: { label: "Admin", formatter: formatNumericalBoolean },
+  user_type: { label: "Type" },
+  deactivated: { label: "Deactivated", formatter: formatNumericalBoolean },
+  shadow_banned: { label: "Shadow Banned", formatter: formatNumericalBoolean },
+  displayname: { label: "Display Name" },
+  avatar_url: { label: "Avatar" },
+  creation_ts: { label: "Created", formatter: formatDate },
+};
+
+export function UserRow(props: { user: User }): JSX.Element {
   return (
-    <figure className={classnames("flex", "px-2")}>
-      {icon}
-      <span className={classnames("px-1")}>{props.label}</span>
-    </figure>
+    <tr>
+      {(Object.keys(userColumns) as Array<keyof User>).map((k) => {
+        const meta = userColumns[k];
+        const data = meta.formatter
+          ? meta.formatter(props.user[k])
+          : props.user[k];
+        if (typeof data === "string" && data.length > 32) {
+          return (
+            <td key={data}>
+              <div title={data}>{data.slice(0, 32) + "..."}</div>
+            </td>
+          );
+        } else {
+          return <td key={data}>{data}</td>;
+        }
+      })}
+    </tr>
   );
 }
 
-function UserCard(props: { user: User }): JSX.Element {
-  return (
-    <article className={classnames("my-2", "p-4", "bg-gray-50", "shadow-sm")}>
-      <p className={classnames("text-2xl")}>{props.user.name}</p>
-      <p className={classnames("text-lg", "pb-2")}>
-        ({props.user.displayname})
-      </p>
-      <section className={classnames("flex", "pb-4")}>
-        {props.user.is_guest === 1 ? (
-          <UserAttribute label="Guest" iconType={GlobeAltIcon} />
-        ) : (
-          <UserAttribute label="Resident" iconType={HomeIcon} />
-        )}
-        {props.user.admin === 1 ? (
-          <UserAttribute label="Administrator" iconType={ShieldCheckIcon} />
-        ) : (
-          <UserAttribute label="User" iconType={UserIcon} />
-        )}
-        <UserAttribute
-          label={props.user.user_type || "Default"}
-          iconType={IdentificationIcon}
-        />
-        {props.user.shadow_banned === 1 ? (
-          <UserAttribute label="Shadow Banned" iconType={EyeOffIcon} />
-        ) : (
-          <UserAttribute label="Not Shadow Banned" iconType={EyeIcon} />
-        )}
-        {props.user.deactivated === 1 ? (
-          <UserAttribute label="Deactivated" iconType={BanIcon} />
-        ) : (
-          <UserAttribute label="Activated" iconType={CheckCircleIcon} />
-        )}
-      </section>
-    </article>
-  );
-}
-
-export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
+export default function UserTable(props: { authInfo: AuthInfo }): JSX.Element {
   const [search, setSearch] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
 
@@ -94,7 +90,7 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
             ? data.users.filter(
                 (user) =>
                   user.name.includes(activeSearch) ||
-                  user.displayname.includes(activeSearch) || 
+                  user.displayname.includes(activeSearch) ||
                   user.user_type?.includes(activeSearch)
               )
             : data?.users ?? [];
@@ -120,9 +116,18 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
               </label>
               <input type="submit" value="Submit" />
             </form>
-            {users.map((user) => (
-              <UserCard key={user.name} user={user} />
-            ))}
+            <table>
+              <thead>
+                {Object.values(userColumns).map((col) => (
+                  <td>{col.label}</td>
+                ))}
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <UserRow key={user.name} user={user} />
+                ))}
+              </tbody>
+            </table>
           </main>
         );
       }}
