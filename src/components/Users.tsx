@@ -14,6 +14,7 @@ import {
   UserIcon,
 } from "@heroicons/react/solid";
 import moment from "moment";
+import Table, { ColumnDefs, Formatters } from "./Table";
 
 interface User {
   name: string;
@@ -27,52 +28,17 @@ interface User {
   creation_ts: number;
 }
 
-interface ColumnMeta {
-  label: string;
-  formatter?: (x: any) => string;
-}
-
-function formatNumericalBoolean(n: number): string {
-  return n === 1 ? "Yes" : "No";
-}
-
-function formatDate(ts: number): string {
-  return moment.unix(ts).format("YYYY/MM/DD, hh:mm a");
-}
-
-const userColumns: Record<keyof User, ColumnMeta> = {
-  name: { label: "Name" },
-  is_guest: { label: "Guest", formatter: formatNumericalBoolean },
-  admin: { label: "Admin", formatter: formatNumericalBoolean },
-  user_type: { label: "Type" },
-  deactivated: { label: "Deactivated", formatter: formatNumericalBoolean },
-  shadow_banned: { label: "Shadow Banned", formatter: formatNumericalBoolean },
-  displayname: { label: "Display Name" },
+const columns: ColumnDefs<User> = {
+  name: { label: "ID" },
+  is_guest: { label: "Guest", formatter: Formatters.yesNo },
+  admin: { label: "Admin", formatter: Formatters.yesNo },
+  user_type: { label: "Type", formatter: Formatters.optional },
+  deactivated: { label: "Deactivated", formatter: Formatters.yesNo },
+  shadow_banned: { label: "Banned", formatter: Formatters.yesNo },
+  displayname: { label: "Name" },
   avatar_url: { label: "Avatar" },
-  creation_ts: { label: "Created", formatter: formatDate },
+  creation_ts: { label: "Created", formatter: Formatters.date },
 };
-
-export function UserRow(props: { user: User }): JSX.Element {
-  return (
-    <tr>
-      {(Object.keys(userColumns) as Array<keyof User>).map((k) => {
-        const meta = userColumns[k];
-        const data = meta.formatter
-          ? meta.formatter(props.user[k])
-          : props.user[k];
-        if (typeof data === "string" && data.length > 32) {
-          return (
-            <td key={data}>
-              <div title={data}>{data.slice(0, 32) + "..."}</div>
-            </td>
-          );
-        } else {
-          return <td key={data}>{data}</td>;
-        }
-      })}
-    </tr>
-  );
-}
 
 export default function UserTable(props: { authInfo: AuthInfo }): JSX.Element {
   const [search, setSearch] = useState("");
@@ -96,8 +62,9 @@ export default function UserTable(props: { authInfo: AuthInfo }): JSX.Element {
             : data?.users ?? [];
 
         return (
-          <main className={classnames("flex", "flex-col")}>
+          <main>
             <form
+              className={classnames("my-2")}
               onSubmit={(event) => {
                 event.preventDefault();
                 setActiveSearch(search);
@@ -116,18 +83,10 @@ export default function UserTable(props: { authInfo: AuthInfo }): JSX.Element {
               </label>
               <input type="submit" value="Submit" />
             </form>
-            <table>
-              <thead>
-                {Object.values(userColumns).map((col) => (
-                  <td>{col.label}</td>
-                ))}
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <UserRow key={user.name} user={user} />
-                ))}
-              </tbody>
-            </table>
+            <Table<User>
+              data={users.map((user) => ({ key: user.name, value: user }))}
+              columns={columns}
+            />
           </main>
         );
       }}
