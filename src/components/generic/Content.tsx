@@ -3,7 +3,7 @@ import { classnames } from "tailwindcss-classnames";
 
 export function ContentCard(props: { children: React.ReactNode }): JSX.Element {
   return (
-    <main
+    <section
       className={classnames(
         "w-full",
         "bg-gray-50",
@@ -15,6 +15,6 @@ export function ContentCard(props: { children: React.ReactNode }): JSX.Element {
       )}
     >
       {props.children}
-    </main>
+    </section>
   );
 }

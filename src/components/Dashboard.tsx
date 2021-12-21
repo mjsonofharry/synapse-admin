@@ -35,7 +35,16 @@ export function SidebarButton(props: {
       onClick={() => props.onClick()}
     >
       {icon}
-      <p className={classnames("text-2xl", "ml-2")}>{props.label}</p>
+      <p
+        className={classnames(
+          "text-lg",
+          "font-semibold",
+          "ml-2",
+          "leading-loose"
+        )}
+      >
+        {props.label}
+      </p>
     </button>
   );
 }
@@ -45,12 +54,18 @@ export default function Dashboard(props: {
   setAuthInfo: React.Dispatch<React.SetStateAction<AuthInfo | null>>;
 }) {
   const [appView, setAppView] = useState<AppView>("users");
-  const motd = `Welcome to the admin dashboard for ${props.authInfo.server}, ${props.authInfo.user}`;
+  const motd = `Welcome to the admin dashboard for ${props.authInfo.server}, ${props.authInfo.user}.`;
 
   return (
     <main className={classnames("flex")}>
-      <div className={classnames("w-72", "p-4")}>
-        <p className={classnames("text-sm", "mb-2")}>{motd}</p>
+      <aside className={classnames("w-72", "p-4")}>
+        <p className={classnames("text-sm", "font-light", "mb-4")}>
+          <span>Welcome to the admin dashboard for </span>
+          <span className={classnames("font-medium")}>
+            {props.authInfo.server}
+          </span>
+          <span>, {props.authInfo.user}</span>
+        </p>
         <SidebarButton
           selected={appView == "users"}
           label="Users"
@@ -72,7 +87,7 @@ export default function Dashboard(props: {
           }}
           iconType={LogoutIcon}
         />
-      </div>
+      </aside>
       {appView === "users" && <Users authInfo={props.authInfo} />}
       {appView === "registration" && <Registration authInfo={props.authInfo} />}
     </main>

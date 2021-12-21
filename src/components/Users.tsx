@@ -66,7 +66,7 @@ function FilterControls(props: {
 }): JSX.Element {
   return (
     <form
-      className={classnames("my-2", "flex", "flex-wrap")}
+      className={classnames("flex", "flex-wrap")}
       onSubmit={(event) => {
         event.preventDefault();
         props.setActiveFilters(encodeFilters(props.filters));
@@ -128,10 +128,13 @@ function FilterControls(props: {
         className={classnames(
           "ml-auto",
           "bg-blue-600",
+          "hover:bg-blue-500",
+          "cursor-pointer",
           "text-gray-50",
           "py-1",
           "px-3",
-          "rounded-lg"
+          "font-medium",
+          "rounded-md"
         )}
         type="submit"
         value="Apply"
@@ -165,6 +168,9 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
         const users = data?.users ?? [];
         return (
           <ContentCard>
+            <header className={classnames("text-2xl", "font-bold")}>
+              Users
+            </header>
             <FilterControls
               filters={filters}
               setFilters={setFilters}

@@ -87,6 +87,7 @@ function HeaderCell(props: {
           className={classnames(
             "ml-1",
             "text-xs",
+            "font-light",
             "break-words",
             "overflow-hidden"
           )}

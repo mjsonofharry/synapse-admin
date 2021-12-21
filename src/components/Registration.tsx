@@ -3,6 +3,7 @@ import { Fetcher } from "./generic/Fetch";
 import { AuthInfo } from "./Login";
 import Table, { ColumnDefs, Formatters } from "./generic/Table";
 import { ContentCard } from "./generic/Content";
+import { classnames } from "tailwindcss-classnames";
 
 interface Token {
   token: string;
@@ -33,6 +34,9 @@ export default function Registration(props: {
         const tokens = data?.registration_tokens ?? [];
         return (
           <ContentCard>
+            <header className={classnames("text-2xl", "font-bold")}>
+              Registration Tokens
+            </header>
             <Table
               data={tokens.map((token) => ({ key: token.token, value: token }))}
               columns={columns}
