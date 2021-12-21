@@ -39,7 +39,7 @@ interface Fetch {
   token?: string;
 }
 
-interface FetchProps<T> extends Fetch {
+interface FetcherProps<T> extends Fetch {
   children: (args: {
     data?: T;
     loading: boolean;
@@ -47,7 +47,7 @@ interface FetchProps<T> extends Fetch {
   }) => JSX.Element;
 }
 
-export function Fetcher<T>(props: FetchProps<T>) {
+export function Fetcher<T>(props: FetcherProps<T>) {
   const [requested, setRequested] = useState<Fetch | null>(null);
   const [data, setData] = useState<T | undefined>(undefined);
   const [loading, setLoading] = useState(true);

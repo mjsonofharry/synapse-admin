@@ -10,7 +10,8 @@ export function ContentCard(props: { children: React.ReactNode }): JSX.Element {
         "m-4",
         "p-4",
         "shadow-md",
-        "rounded-md"
+        "rounded-md",
+        "overflow-hidden"
       )}
     >
       {props.children}

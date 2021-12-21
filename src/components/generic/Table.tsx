@@ -4,22 +4,25 @@ import moment from "moment";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/solid";
 
 export class Formatters {
-  public static yesNo(n: number): string {
-    return n === 1 ? "Yes" : "No";
+  public static yesNo(n?: number): string {
+    if (n === 1) {
+      return "Yes";
+    } else if (n === 0) {
+      return "No";
+    } else {
+      return "";
+    }
   }
 
-  public static date(ts: number): string {
-    return moment.unix(ts / 1000).format("YYYY/MM/DD, hh:mm a");
-  }
-
-  public static optional(s: string): string {
-    return s ? s : "N/A";
+  public static date(ts?: number): string {
+    return ts ? moment.unix(ts / 1000).format("YYYY/MM/DD, hh:mm a") : "";
   }
 }
 
 export interface Column {
   label: string;
   formatter?: (x: any) => string;
+  truncate?: boolean;
 }
 
 export type ColumnDefs<T> = Record<keyof T, Column>;
@@ -29,14 +32,18 @@ function Cell<T>(props: { data: T[keyof T]; column: Column }): JSX.Element {
     ? props.column.formatter(props.data)
     : props.data;
   return (
-    <td className={classnames("pr-3", "h-5")}>
+    <td className={classnames("pr-3")}>
       <p
         title={formattedData as string}
         className={classnames(
           "ml-1",
           "text-base",
           "max-w-xs",
-          "overflow-hidden"
+          "max-h-12",
+          "overflow-hidden",
+          props.column.truncate
+            ? classnames("break-all")
+            : classnames("break-words")
         )}
       >
         {formattedData}
@@ -52,7 +59,8 @@ function Row<T>(props: { data: T; columns: ColumnDefs<T> }): JSX.Element {
         "bg-gray-900",
         "text-gray-200",
         "border-b",
-        "border-gray-100"
+        "border-gray-100",
+        "h-16"
       )}
     >
       {(Object.keys(props.columns) as Array<keyof T>).map((k) => (
@@ -73,11 +81,20 @@ function HeaderCell(props: {
   onClick: () => void;
 }) {
   return (
-    <td className={classnames("pr-3")}>
+    <th className={classnames("pr-3")}>
       <button onClick={props.onClick} className={classnames("flex", "w-full")}>
-        <p className={classnames("ml-1", "text-sm")}>{props.label}</p>
+        <p
+          className={classnames(
+            "ml-1",
+            "text-xs",
+            "break-words",
+            "overflow-hidden"
+          )}
+        >
+          {props.label}
+        </p>
         {props.sorting && (
-          <figure className={classnames("mt-0.5", "ml-1", "w-4", "h-4")}>
+          <figure className={classnames("ml-1", "w-4", "h-4")}>
             {props.sortDirection === 1 ? (
               <ChevronUpIcon />
             ) : (
@@ -87,13 +104,14 @@ function HeaderCell(props: {
         )}
         {!props.sorting && <mark className={classnames("ml-1", "w-4")} />}
       </button>
-    </td>
+    </th>
   );
 }
 
 export default function Table<T>(props: {
   data: { key: string; value: T }[];
   columns: ColumnDefs<T>;
+  pageSize: number;
 }): JSX.Element {
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortDirection, setSortDirection] = useState(1);
@@ -118,7 +136,7 @@ export default function Table<T>(props: {
       : props.data;
 
   return (
-    <table className={classnames("w-full")}>
+    <table className={classnames("w-full", "table-auto", "border-collapse")}>
       <thead>
         <tr className={classnames("bg-gray-50")}>
           {(Object.keys(props.columns) as Array<keyof T>).map((k) => (
@@ -143,6 +161,10 @@ export default function Table<T>(props: {
         {sortedData.map((x) => (
           <Row key={x.key} data={x.value} columns={props.columns} />
         ))}
+        {sortedData.length < props.pageSize &&
+          Array.from(Array(props.pageSize - sortedData.length).keys()).map(
+            (i) => <Row key={i} data={{}} columns={props.columns} />
+          )}
       </tbody>
     </table>
   );

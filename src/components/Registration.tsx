@@ -36,6 +36,7 @@ export default function Registration(props: {
             <Table
               data={tokens.map((token) => ({ key: token.token, value: token }))}
               columns={columns}
+              pageSize={5}
             />
           </ContentCard>
         );

@@ -43,11 +43,11 @@ const userColumns: ColumnDefs<User> = {
   name: { label: "ID" },
   is_guest: { label: "Guest", formatter: Formatters.yesNo },
   admin: { label: "Admin", formatter: Formatters.yesNo },
-  user_type: { label: "Type", formatter: Formatters.optional },
+  user_type: { label: "Type" },
   deactivated: { label: "Deactivated", formatter: Formatters.yesNo },
   shadow_banned: { label: "Banned", formatter: Formatters.yesNo },
   displayname: { label: "Name" },
-  avatar_url: { label: "Avatar" },
+  avatar_url: { label: "Avatar", truncate: true },
   creation_ts: { label: "Created", formatter: Formatters.date },
 };
 
@@ -66,16 +66,16 @@ function FilterControls(props: {
 }): JSX.Element {
   return (
     <form
-      className={classnames("my-2", "flex")}
+      className={classnames("my-2", "flex", "flex-wrap")}
       onSubmit={(event) => {
         event.preventDefault();
         props.setActiveFilters(encodeFilters(props.filters));
       }}
     >
-      <label>
+      <label className={classnames("leading-loose")}>
         User ID:
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "leading-loose")}
           type={"text"}
           value={props.filters.user_id}
           onChange={(event) =>
@@ -84,10 +84,10 @@ function FilterControls(props: {
           placeholder="@username:example.com"
         />
       </label>
-      <label>
+      <label className={classnames("leading-loose")}>
         Name:
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "leading-loose")}
           type={"text"}
           value={props.filters.name}
           onChange={(event) =>
@@ -96,7 +96,7 @@ function FilterControls(props: {
           placeholder="username"
         />
       </label>
-      <label>
+      <label className={classnames("leading-loose")}>
         Guests:
         <input
           className={classnames("mx-2")}
@@ -110,7 +110,7 @@ function FilterControls(props: {
           }
         />
       </label>
-      <label>
+      <label className={classnames("leading-loose")}>
         Deactivated:
         <input
           className={classnames("mx-2")}
@@ -124,7 +124,18 @@ function FilterControls(props: {
           }
         />
       </label>
-      <input type="submit" value="Submit" />
+      <input
+        className={classnames(
+          "ml-auto",
+          "bg-blue-600",
+          "text-gray-50",
+          "py-1",
+          "px-3",
+          "rounded-lg"
+        )}
+        type="submit"
+        value="Apply"
+      />
     </form>
   );
 }
@@ -162,6 +173,7 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
             <Table<User>
               data={users.map((user) => ({ key: user.name, value: user }))}
               columns={userColumns}
+              pageSize={5}
             />
           </ContentCard>
         );
