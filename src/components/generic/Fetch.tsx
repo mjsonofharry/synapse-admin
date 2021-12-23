@@ -20,12 +20,12 @@ export function handleFetch<T>(args: {
     .then((response: Response) => {
       if (!response.ok) {
         args.onError();
-        throw Error(response.statusText);
+      } else {
+        return response.json() as Promise<T>;
       }
-      return response.json() as Promise<T>;
     })
-    .then((data: T) => {
-      args.onLoad(data);
+    .then((data?: T) => {
+      data && args.onLoad(data);
     })
     .catch(() => {
       args.onError();
@@ -33,6 +33,7 @@ export function handleFetch<T>(args: {
 }
 
 interface Fetch {
+  id?: number;
   url: string;
   method: Method;
   body?: string;
