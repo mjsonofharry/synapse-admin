@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { classnames } from "tailwindcss-classnames";
 import { handleFetch } from "./generic/Fetch";
+import * as Styles from "../styles";
 
 export interface AuthInfo {
   server: string;
@@ -108,7 +109,12 @@ export default function Login(props: {
         </label>
         {loading && <p>Logging in...</p>}
         {error && <p className={classnames("text-red-500")}>{error}</p>}
-        <input type="submit" value="Submit" disabled={loading} />
+        <input
+          className={Styles.button("confirm")}
+          type="submit"
+          value="Submit"
+          disabled={loading}
+        />
       </form>
     </main>
   );

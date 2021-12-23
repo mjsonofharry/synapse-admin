@@ -21,8 +21,7 @@ export class Formatters {
 
 export interface Column {
   label: string;
-  formatter?: (x: any) => string;
-  truncate?: boolean;
+  formatter?: (x: any) => string | JSX.Element;
 }
 
 export type ColumnDefs<T> = Record<keyof T, Column>;
@@ -32,22 +31,18 @@ function Cell<T>(props: { data: T[keyof T]; column: Column }): JSX.Element {
     ? props.column.formatter(props.data)
     : props.data;
   return (
-    <td className={classnames("pr-3")}>
-      <p
-        title={formattedData as string}
-        className={classnames(
-          "ml-1",
-          "text-base",
-          "max-w-xs",
-          "max-h-12",
-          "overflow-hidden",
-          props.column.truncate
-            ? classnames("break-all")
-            : classnames("break-words")
-        )}
-      >
-        {formattedData}
-      </p>
+    <td
+      className={classnames(
+        "pr-3",
+        "ml-1",
+        "text-base",
+        "max-w-xs",
+        "max-h-12",
+        "overflow-hidden",
+        "break-words"
+      )}
+    >
+      {formattedData}
     </td>
   );
 }

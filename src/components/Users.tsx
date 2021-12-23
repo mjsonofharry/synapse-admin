@@ -16,6 +16,8 @@ import {
 import Table, { ColumnDefs, Formatters } from "./generic/Table";
 import { ContentCard } from "./generic/Content";
 import Modal from "./generic/Modal";
+import * as Styles from "../styles";
+import Tooltip from "./generic/Tooltip";
 
 interface User {
   name: string;
@@ -40,17 +42,36 @@ interface UserFilters {
   dir: "f" | "b";
 }
 
-const userColumns: ColumnDefs<User> = {
-  name: { label: "ID" },
-  is_guest: { label: "Guest", formatter: Formatters.yesNo },
-  admin: { label: "Admin", formatter: Formatters.yesNo },
-  user_type: { label: "Type" },
-  deactivated: { label: "Deactivated", formatter: Formatters.yesNo },
-  shadow_banned: { label: "Banned", formatter: Formatters.yesNo },
-  displayname: { label: "Name" },
-  avatar_url: { label: "Avatar", truncate: true },
-  creation_ts: { label: "Created", formatter: Formatters.date },
-};
+function Avatar(props: { server: string; mxc: string }): JSX.Element {
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  if (!props.mxc) {
+    return <></>;
+  }
+  const resource = props.mxc.replace("mxc://", "");
+  const contentUrl = `https://${props.server}/_matrix/media/r0/thumbnail/${resource}?width=128&height=128&method=crop`;
+  return (
+    <>
+      <Tooltip show={showTooltip} text="Copied!" />
+      <img
+        onClick={() => {
+          navigator.clipboard.writeText(contentUrl);
+          setShowTooltip(true);
+        }}
+        onMouseLeave={() => {
+          if (showTooltip) {
+            setShowTooltip(false);
+          }
+        }}
+        className={classnames("cursor-pointer", "rounded-2xl")}
+        title={contentUrl}
+        src={contentUrl}
+        width={32}
+        height={32}
+      />
+    </>
+  );
+}
 
 function encodeFilters(filters: UserFilters) {
   return new URLSearchParams(
@@ -67,7 +88,7 @@ function FilterControls(props: {
 }): JSX.Element {
   return (
     <form
-      className={classnames("flex", "flex-wrap")}
+      className={classnames("flex", "flex-wrap", "pb-4")}
       onSubmit={(event) => {
         event.preventDefault();
         props.setActiveFilters(encodeFilters(props.filters));
@@ -126,41 +147,16 @@ function FilterControls(props: {
         />
       </label>
       <input
-        className={classnames(
-          "ml-auto",
-          "bg-blue-600",
-          "hover:bg-blue-500",
-          "cursor-pointer",
-          "text-gray-50",
-          "py-1",
-          "px-3",
-          "font-medium",
-          "rounded-md"
-        )}
+        className={classnames(Styles.button("confirm"), "ml-auto")}
         type="submit"
-        value="Apply"
+        value="Apply Filters"
       />
     </form>
   );
 }
 
 function UserModal(props: { user: User }): JSX.Element {
-  return (
-    <article
-      onClick={(event) => event.stopPropagation()}
-      className={classnames(
-        "w-1/3",
-        "h-1/2",
-        "bg-gray-50",
-        "rounded-lg",
-        "shadow-md",
-        "flex",
-        "flex-col"
-      )}
-    >
-      <p>test</p>
-    </article>
-  );
+  return <p>test</p>;
 }
 
 export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
@@ -178,6 +174,23 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
     encodeFilters(filters)
   );
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  const userColumns: ColumnDefs<User> = {
+    name: { label: "ID" },
+    is_guest: { label: "Guest", formatter: Formatters.yesNo },
+    admin: { label: "Admin", formatter: Formatters.yesNo },
+    user_type: { label: "Type" },
+    deactivated: { label: "Deactivated", formatter: Formatters.yesNo },
+    shadow_banned: { label: "Banned", formatter: Formatters.yesNo },
+    displayname: { label: "Name" },
+    avatar_url: {
+      label: "Avatar",
+      formatter: (mxc: string) => {
+        return <Avatar server={props.authInfo.server} mxc={mxc} />;
+      },
+    },
+    creation_ts: { label: "Created", formatter: Formatters.date },
+  };
 
   return (
     <Fetcher<{ users: User[] }>
@@ -206,7 +219,7 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
               data={users.map((user) => ({ key: user.name, value: user }))}
               columns={userColumns}
               pageSize={5}
-              onClickRow={(user) => setSelectedUser(user)}
+              // onClickRow={(user) => setSelectedUser(user)}
             />
           </ContentCard>
         );

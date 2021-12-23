@@ -1,3 +1,4 @@
+import { XCircleIcon } from "@heroicons/react/solid";
 import React, { useEffect } from "react";
 import { classnames } from "tailwindcss-classnames";
 import { ContentCard } from "./Content";
@@ -18,7 +19,7 @@ export default function Modal(props: {
 
   return (
     <div
-      onClick={() => props.hide()}
+      onClick={props.hide}
       className={classnames(
         "z-10",
         "absolute",
@@ -29,10 +30,37 @@ export default function Modal(props: {
         "flex",
         "items-center",
         "content-center",
-        "justify-center"
+        "justify-center",
+        "backdrop-blur-md"
       )}
     >
-      {props.children}
+      <article
+        onClick={(event) => event.stopPropagation()}
+        className={classnames(
+          "w-1/3",
+          "h-3/4",
+          "bg-gray-50",
+          "rounded-lg",
+          "shadow-md",
+          "flex",
+          "flex-col",
+          "pt-1",
+          "px-4",
+          "pb-4"
+        )}
+      >
+        <XCircleIcon
+          onClick={props.hide}
+          className={classnames(
+            "w-8",
+            "h-8",
+            "ml-auto",
+            "cursor-pointer",
+            "text-red-600"
+          )}
+        />
+        {props.children}
+      </article>
     </div>
   );
 }
