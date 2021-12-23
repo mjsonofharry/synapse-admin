@@ -110,7 +110,7 @@ export default function Login(props: {
         {loading && <p>Logging in...</p>}
         {error && <p className={classnames("text-red-500")}>{error}</p>}
         <input
-          className={Styles.button("confirm")}
+          className={classnames(Styles.button("confirm"), "mt-4")}
           type="submit"
           value="Submit"
           disabled={loading}

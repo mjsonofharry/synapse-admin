@@ -33,7 +33,8 @@ function Cell<T>(props: { data: T[keyof T]; column: Column }): JSX.Element {
   return (
     <td
       className={classnames(
-        "pr-3",
+        "pl-1",
+        "pr-2",
         "ml-1",
         "text-base",
         "max-w-xs",

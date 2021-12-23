@@ -10,6 +10,7 @@ import {
   GlobeAltIcon,
   HomeIcon,
   IdentificationIcon,
+  PencilAltIcon,
   ShieldCheckIcon,
   UserIcon,
 } from "@heroicons/react/solid";
@@ -43,7 +44,8 @@ interface UserFilters {
 }
 
 function Avatar(props: { server: string; mxc: string }): JSX.Element {
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [showHint, setShowHint] = useState(false);
 
   if (!props.mxc) {
     return <></>;
@@ -52,15 +54,25 @@ function Avatar(props: { server: string; mxc: string }): JSX.Element {
   const contentUrl = `https://${props.server}/_matrix/media/r0/thumbnail/${resource}?width=128&height=128&method=crop`;
   return (
     <>
-      <Tooltip show={showTooltip} text="Copied!" />
+      <Tooltip show={showFeedback} text="Copied!" />
+      <Tooltip show={showHint} text="Copy to clipboard" />
       <img
         onClick={() => {
           navigator.clipboard.writeText(contentUrl);
-          setShowTooltip(true);
+          setShowFeedback(true);
+          setShowHint(false);
+        }}
+        onMouseEnter={() => {
+          if (!showFeedback) {
+            setShowHint(true);
+          }
         }}
         onMouseLeave={() => {
-          if (showTooltip) {
-            setShowTooltip(false);
+          if (showFeedback) {
+            setShowFeedback(false);
+          }
+          if (showHint) {
+            setShowHint(false);
           }
         }}
         className={classnames("cursor-pointer", "rounded-2xl")}
@@ -69,6 +81,19 @@ function Avatar(props: { server: string; mxc: string }): JSX.Element {
         width={32}
         height={32}
       />
+    </>
+  );
+}
+
+function UserName(props: { name: string }): JSX.Element {
+  return (
+    <>
+      {props.name && (
+        <PencilAltIcon
+          className={classnames(Styles.buttonIcon("confirm"), "inline", "mx-1")}
+        />
+      )}
+      <span>{props.name}</span>
     </>
   );
 }
@@ -176,7 +201,12 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const userColumns: ColumnDefs<User> = {
-    name: { label: "ID" },
+    name: {
+      label: "ID",
+      formatter: (name: string) => {
+        return <UserName name={name} />;
+      },
+    },
     is_guest: { label: "Guest", formatter: Formatters.yesNo },
     admin: { label: "Admin", formatter: Formatters.yesNo },
     user_type: { label: "Type" },
