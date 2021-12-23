@@ -52,11 +52,17 @@ function Cell<T>(props: { data: T[keyof T]; column: Column }): JSX.Element {
   );
 }
 
-function Row<T>(props: { data: T; columns: ColumnDefs<T> }): JSX.Element {
+function Row<T>(props: {
+  data: T;
+  columns: ColumnDefs<T>;
+  onClick?: (data: T) => void;
+}): JSX.Element {
   return (
     <tr
+      onClick={() => props.onClick && props.onClick(props.data)}
       className={classnames(
         "bg-gray-900",
+        "hover:bg-gray-800",
         "text-gray-200",
         "border-b",
         "border-gray-100",
@@ -113,14 +119,13 @@ export default function Table<T>(props: {
   data: { key: string; value: T }[];
   columns: ColumnDefs<T>;
   pageSize: number;
+  onClickRow?: (data: T) => void;
 }): JSX.Element {
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortDirection, setSortDirection] = useState(1);
 
-  if (props.data.length === 0) {
-    return <p className={classnames("text-3xl")}>No Results</p>;
-  }
-
+  // TODO: Paginated data needs to be fetched via a callback, not provided as a prop
+  // TODO: Sorting needs to be done via API call, not in-memory
   const sortedData =
     sortKey !== null
       ? props.data.sort((a, b) => {
@@ -160,7 +165,12 @@ export default function Table<T>(props: {
       </thead>
       <tbody>
         {sortedData.map((x) => (
-          <Row key={x.key} data={x.value} columns={props.columns} />
+          <Row
+            key={x.key}
+            data={x.value}
+            columns={props.columns}
+            onClick={props.onClickRow}
+          />
         ))}
         {sortedData.length < props.pageSize &&
           Array.from(Array(props.pageSize - sortedData.length).keys()).map(

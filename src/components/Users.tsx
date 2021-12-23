@@ -15,6 +15,7 @@ import {
 } from "@heroicons/react/solid";
 import Table, { ColumnDefs, Formatters } from "./generic/Table";
 import { ContentCard } from "./generic/Content";
+import Modal from "./generic/Modal";
 
 interface User {
   name: string;
@@ -143,6 +144,25 @@ function FilterControls(props: {
   );
 }
 
+function UserModal(props: { user: User }): JSX.Element {
+  return (
+    <article
+      onClick={(event) => event.stopPropagation()}
+      className={classnames(
+        "w-1/3",
+        "h-1/2",
+        "bg-gray-50",
+        "rounded-lg",
+        "shadow-md",
+        "flex",
+        "flex-col"
+      )}
+    >
+      <p>test</p>
+    </article>
+  );
+}
+
 export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
   const [filters, setFilters] = useState<UserFilters>({
     user_id: "",
@@ -157,6 +177,7 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
   const [activeFilters, setActiveFilters] = useState<URLSearchParams>(
     encodeFilters(filters)
   );
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   return (
     <Fetcher<{ users: User[] }>
@@ -171,6 +192,11 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
             <header className={classnames("text-2xl", "font-bold")}>
               Users
             </header>
+            {selectedUser && (
+              <Modal hide={() => setSelectedUser(null)}>
+                <UserModal user={selectedUser} />
+              </Modal>
+            )}
             <FilterControls
               filters={filters}
               setFilters={setFilters}
@@ -180,6 +206,7 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
               data={users.map((user) => ({ key: user.name, value: user }))}
               columns={userColumns}
               pageSize={5}
+              onClickRow={(user) => setSelectedUser(user)}
             />
           </ContentCard>
         );

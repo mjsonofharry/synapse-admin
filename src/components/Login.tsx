@@ -58,13 +58,13 @@ export default function Login(props: {
             body: JSON.stringify(fetchContent),
             onLoad: (data) => {
               setError("");
-              setPassword("******");
+              setPassword("");
               setLoading(false);
               props.setAuthInfo({ server, user, token: data.access_token });
             },
             onError: () => {
               setError("Login failed");
-              setPassword("******");
+              setPassword("");
               setLoading(false);
             },
           });
