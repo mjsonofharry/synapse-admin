@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { classnames } from "tailwindcss-classnames";
-import moment from "moment";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/solid";
 
 const headerCellStyles = classnames(
@@ -31,7 +30,24 @@ const rowStyles = classnames(
   "h-16"
 );
 
+export const datetimeFormat: Intl.DateTimeFormatOptions = {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  hour12: true,
+};
+
 export class Formatters {
+  public static dateInput(d: Date): string {
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  }
+
+  public static hourInput(d: Date): string {
+    return `${d.getHours()}:${d.getSeconds()}}`;
+  }
+
   public static yesNo(n?: number): string {
     if (n === 1) {
       return "Yes";
@@ -43,9 +59,7 @@ export class Formatters {
   }
 
   public static date(ts?: number): string {
-    return ts !== undefined
-      ? moment.unix(ts / 1000).format("YYYY/MM/DD, hh:mm a")
-      : "";
+    return ts ? new Date(ts).toLocaleString("default", datetimeFormat) : "";
   }
 }
 

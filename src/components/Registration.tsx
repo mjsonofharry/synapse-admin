@@ -6,8 +6,15 @@ import Table, { ColumnDefs, Formatters } from "./generic/Table";
 import { ContentCard } from "./generic/Content";
 import { classnames } from "tailwindcss-classnames";
 import { PlusCircleIcon, XIcon } from "@heroicons/react/solid";
-import { IconButton, LabelledButton } from "./generic/Button";
+import { IconButton, LabelledButton, SubmitButton } from "./generic/Button";
 import Modal from "./generic/Modal";
+
+interface CreateTokenRequest {
+  token?: string;
+  uses_allowed: number;
+  expiry_time: number;
+  length?: number;
+}
 
 interface RegistrationToken {
   token: string;
@@ -25,15 +32,41 @@ const columns: ColumnDefs<RegistrationToken> = {
   expiry_time: { label: "Expiry", formatter: Formatters.date },
 };
 
-function CreateTokenForm() {
+function CreateTokenForm(props: {
+  authInfo: AuthInfo;
+  onSubmit: () => void;
+  onLoad: () => void;
+}) {
+  const today = Formatters.dateInput(new Date());
+  const now = Formatters.hourInput(new Date());
   const [token, setToken] = useState<string | null>(null);
   const [usesAllowed, setUsesAllowed] = useState(1);
-  const [expiryDate, setExpiryDate] = useState<string | null>(null);
-  const [expiryTime, setExpiryTime] = useState<string | null>(null);
+  const [expiryDate, setExpiryDate] = useState<string>(today);
+  const [expiryTime, setExpiryTime] = useState<string>("23:59");
   const [length, setLength] = useState<number | null>(null);
 
   return (
-    <form className={classnames("flex", "flex-col")}>
+    <form
+      className={classnames("flex", "flex-col", "h-full")}
+      onSubmit={(event) => {
+        event.preventDefault();
+        const body: CreateTokenRequest = {
+          ...(token ? { token: token } : {}),
+          ...(length ? { length: length } : {}),
+          uses_allowed: usesAllowed,
+          expiry_time: Date.parse(`${expiryDate}T${expiryTime}`),
+        };
+        handleFetch<any>({
+          url: `https://${props.authInfo.server}/_synapse/admin/v1/registration_tokens/new`,
+          method: "POST",
+          token: props.authInfo.token,
+          body: JSON.stringify(body),
+          onLoad: (data) => props.onLoad(),
+          onError: () => alert("Token creation failed"),
+        });
+        props.onSubmit();
+      }}
+    >
       <label className={classnames("my-2", "flex", "justify-between")}>
         Name (optional):
         <input
@@ -55,6 +88,7 @@ function CreateTokenForm() {
           onChange={(event) => setUsesAllowed(parseInt(event.target.value))}
           required={true}
           name="uses_allowed"
+          min={1}
         />
       </label>
       <label className={classnames("my-2", "flex", "justify-between")}>
@@ -62,10 +96,11 @@ function CreateTokenForm() {
         <input
           className={classnames("mx-2")}
           type="date"
-          value={expiryDate ?? new Date().toDateString()}
+          value={expiryDate}
           onChange={(event) => setExpiryDate(event.target.value)}
           required={true}
           name="expiry_date"
+          min={today}
         />
       </label>
       <label className={classnames("my-2", "flex", "justify-between")}>
@@ -73,7 +108,7 @@ function CreateTokenForm() {
         <input
           className={classnames("mx-2")}
           type="time"
-          value={expiryTime ?? "11:59"}
+          value={expiryTime}
           onChange={(event) => setExpiryTime(event.target.value)}
           required={true}
           name="expiry_time"
@@ -87,8 +122,10 @@ function CreateTokenForm() {
           value={length ?? 16}
           onChange={(event) => setLength(parseInt(event.target.value))}
           name="length"
+          min={1}
         />
       </label>
+      <SubmitButton classNames={classnames("mt-auto")} />
     </form>
   );
 }
@@ -111,8 +148,18 @@ export default function Registration(props: {
         return (
           <ContentCard>
             {creatingToken && (
-              <Modal hide={() => setCreatingToken(false)}>
-                <CreateTokenForm />
+              <Modal
+                title="Create Registration Token"
+                hide={() => setCreatingToken(false)}
+              >
+                <CreateTokenForm
+                  authInfo={props.authInfo}
+                  onSubmit={() => setCreatingToken(false)}
+                  onLoad={() => {
+                    setFetchId(-fetchId);
+                    setCreatingToken(false);
+                  }}
+                />
               </Modal>
             )}
             <header className={classnames("text-2xl", "font-bold", "pb-4")}>

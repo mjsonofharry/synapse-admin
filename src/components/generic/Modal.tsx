@@ -4,6 +4,7 @@ import { classnames } from "tailwindcss-classnames";
 import { IconButton } from "./Button";
 
 export default function Modal(props: {
+  title?: string;
   hide: () => void;
   children: React.ReactNode;
 }): JSX.Element {
@@ -49,12 +50,17 @@ export default function Modal(props: {
           "pb-4"
         )}
       >
-        <IconButton
-          type="delete"
-          icon={XCircleIcon}
-          onClick={props.hide}
-          className={classnames("w-8", "h-8", "ml-auto")}
-        />
+        <header className={classnames("flex", "w-full")}>
+          <span className={classnames("text-lg", "font-semibold", "mt-1")}>
+            {props.title}
+          </span>
+          <IconButton
+            type="delete"
+            icon={XCircleIcon}
+            onClick={props.hide}
+            className={classnames("w-8", "h-8", "ml-auto", "inline")}
+          />
+        </header>
         {props.children}
       </article>
     </div>
