@@ -13,12 +13,13 @@ import {
   PencilAltIcon,
   ShieldCheckIcon,
   UserIcon,
+  XIcon,
 } from "@heroicons/react/solid";
 import Table, { ColumnDefs, Formatters } from "./generic/Table";
 import { ContentCard } from "./generic/Content";
 import Modal from "./generic/Modal";
-import * as Styles from "../styles";
 import Tooltip from "./generic/Tooltip";
+import { IconButton, SubmitButton } from "./generic/Button";
 
 interface User {
   name: string;
@@ -81,19 +82,6 @@ function Avatar(props: { server: string; mxc: string }): JSX.Element {
         width={32}
         height={32}
       />
-    </>
-  );
-}
-
-function UserName(props: { name: string }): JSX.Element {
-  return (
-    <>
-      {props.name && (
-        <PencilAltIcon
-          className={classnames(Styles.buttonIcon("confirm"), "inline", "mx-1")}
-        />
-      )}
-      <span>{props.name}</span>
     </>
   );
 }
@@ -171,11 +159,7 @@ function FilterControls(props: {
           }
         />
       </label>
-      <input
-        className={classnames(Styles.button("confirm"), "ml-auto")}
-        type="submit"
-        value="Apply Filters"
-      />
+      <SubmitButton classNames={classnames("ml-auto")} />
     </form>
   );
 }
@@ -198,15 +182,10 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
   const [activeFilters, setActiveFilters] = useState<URLSearchParams>(
     encodeFilters(filters)
   );
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const userColumns: ColumnDefs<User> = {
-    name: {
-      label: "ID",
-      formatter: (name: string) => {
-        return <UserName name={name} />;
-      },
-    },
+    name: { label: "ID" },
     is_guest: { label: "Guest", formatter: Formatters.yesNo },
     admin: { label: "Admin", formatter: Formatters.yesNo },
     user_type: { label: "Type" },
@@ -232,14 +211,14 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
         const users = data?.users ?? [];
         return (
           <ContentCard>
+            {editingUser && (
+              <Modal hide={() => setEditingUser(null)}>
+                <UserModal user={editingUser} />
+              </Modal>
+            )}
             <header className={classnames("text-2xl", "font-bold")}>
               Users
             </header>
-            {selectedUser && (
-              <Modal hide={() => setSelectedUser(null)}>
-                <UserModal user={selectedUser} />
-              </Modal>
-            )}
             <FilterControls
               filters={filters}
               setFilters={setFilters}
@@ -249,7 +228,16 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
               data={users.map((user) => ({ key: user.name, value: user }))}
               columns={userColumns}
               pageSize={5}
-              // onClickRow={(user) => setSelectedUser(user)}
+              controls={(user) => (
+                <div className={classnames("flex", "justify-center")}>
+                  <IconButton
+                    type="confirm"
+                    icon={PencilAltIcon}
+                    onClick={() => setEditingUser(user)}
+                    className={classnames("inline", "mx-1")}
+                  />
+                </div>
+              )}
             />
           </ContentCard>
         );

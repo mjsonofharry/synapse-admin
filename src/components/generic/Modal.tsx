@@ -1,7 +1,7 @@
 import { XCircleIcon } from "@heroicons/react/solid";
 import React, { useEffect } from "react";
 import { classnames } from "tailwindcss-classnames";
-import { ContentCard } from "./Content";
+import { IconButton } from "./Button";
 
 export default function Modal(props: {
   hide: () => void;
@@ -49,15 +49,11 @@ export default function Modal(props: {
           "pb-4"
         )}
       >
-        <XCircleIcon
+        <IconButton
+          type="delete"
+          icon={XCircleIcon}
           onClick={props.hide}
-          className={classnames(
-            "w-8",
-            "h-8",
-            "ml-auto",
-            "cursor-pointer",
-            "text-red-600"
-          )}
+          className={classnames("w-8", "h-8", "ml-auto")}
         />
         {props.children}
       </article>
