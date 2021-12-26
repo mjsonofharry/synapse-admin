@@ -159,7 +159,7 @@ function FilterControls(props: {
           }
         />
       </label>
-      <SubmitButton classNames={classnames("ml-auto")} />
+      <SubmitButton className={classnames("ml-auto")} />
     </form>
   );
 }

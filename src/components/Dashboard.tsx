@@ -54,8 +54,6 @@ export default function Dashboard(props: {
   setAuthInfo: React.Dispatch<React.SetStateAction<AuthInfo | null>>;
 }) {
   const [appView, setAppView] = useState<AppView>("users");
-  const motd = `Welcome to the admin dashboard for ${props.authInfo.server}, ${props.authInfo.user}.`;
-
   return (
     <main className={classnames("flex")}>
       <aside className={classnames("w-72", "p-4")}>
@@ -67,13 +65,13 @@ export default function Dashboard(props: {
           <span>, {props.authInfo.user}</span>
         </p>
         <SidebarButton
-          selected={appView == "users"}
+          selected={appView === "users"}
           label="Users"
           onClick={() => setAppView("users")}
           iconType={UsersIcon}
         />
         <SidebarButton
-          selected={appView == "registration"}
+          selected={appView === "registration"}
           label="Registration"
           onClick={() => setAppView("registration")}
           iconType={ClipboardCheckIcon}

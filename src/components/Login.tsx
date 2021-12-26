@@ -109,7 +109,7 @@ export default function Login(props: {
         </label>
         {loading && <p>Logging in...</p>}
         {error && <p className={classnames("text-red-500")}>{error}</p>}
-        <SubmitButton disabled={loading} classNames={classnames("mt-4")} />
+        <SubmitButton disabled={loading} className={classnames("mt-4")} />
       </form>
     </main>
   );

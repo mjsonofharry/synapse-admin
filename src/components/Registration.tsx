@@ -125,7 +125,7 @@ function CreateTokenForm(props: {
           min={1}
         />
       </label>
-      <SubmitButton classNames={classnames("mt-auto")} />
+      <SubmitButton className={classnames("mt-auto")} />
     </form>
   );
 }
@@ -169,7 +169,7 @@ export default function Registration(props: {
               type="create"
               label="Create Token"
               onClick={() => setCreatingToken(true)}
-              classNames={classnames("mb-4")}
+              className={classnames("mb-4")}
             />
             <Table
               data={tokens.map((token) => ({ key: token.token, value: token }))}

@@ -2,102 +2,53 @@ import React from "react";
 import { classnames, TTailwindString } from "tailwindcss-classnames";
 
 type ButtonType = "confirm" | "cancel" | "delete" | "create";
-type ButtonColor = "blue" | "gray" | "red" | "green";
-type ButtonValue = 200 | 300 | 400 | 500 | 600;
-type ButtonSize = "small" | "medium" | "large";
 
 type IconProps = (props: React.ComponentProps<"svg">) => JSX.Element;
 
-class Styles {
-  private static type2color: Record<ButtonType, ButtonColor> = {
-    confirm: "blue",
-    cancel: "gray",
-    delete: "red",
-    create: "green",
-  };
-
-  private static type2value(light: boolean): Record<ButtonType, ButtonValue> {
-    return {
-      confirm: light ? 500 : 600,
-      cancel: light ? 300 : 400,
-      delete: light ? 500 : 600,
-      create: light ? 500 : 600,
-    };
-  }
-
-  private static type2hoverValue(
-    light: boolean
-  ): Record<ButtonType, ButtonValue> {
-    return {
-      confirm: light ? 400 : 500,
-      cancel: light ? 200 : 300,
-      delete: light ? 400 : 500,
-      create: light ? 400 : 500,
-    };
-  }
-
-  public static colors(args: {
-    type: ButtonType;
-    style: "background" | "text";
-    light: boolean;
-  }): TTailwindString {
-    const color = Styles.type2color[args.type];
-    const value = Styles.type2value(args.light)[args.type];
-    const hoverValue = Styles.type2hoverValue(args.light)[args.type];
-    if (args.style === "text") {
-      return classnames(
-        `text-${color}-${value}`,
-        `hover:text-${color}-${hoverValue}`
-      );
-    } else {
-      return classnames(
-        `bg-${color}-${value}`,
-        `hover:bg-${color}-${hoverValue}`
-      );
-    }
-  }
-
-  public static solidTextButton(type: ButtonType): TTailwindString {
-    return classnames(
-      Styles.colors({ type, style: "background", light: false }),
-      "text-gray-50",
-      "cursor-pointer",
-      "py-1",
-      "px-3",
-      "font-medium",
-      "rounded-md"
-    );
-  }
-
-  public static textButton(type: ButtonType): TTailwindString {
-    return classnames(
-      Styles.colors({ type, style: "text", light: false }),
-      "cursor-pointer",
-      "py-1",
-      "px-3",
-      "font-medium"
-    );
-  }
-
-  public static iconButton(type: ButtonType): TTailwindString {
-    return classnames(
-      Styles.colors({ type, style: "text", light: true }),
-      "cursor-pointer",
-      "w-5",
-      "h-5"
-    );
-  }
+interface ButtonStyle {
+  text: TTailwindString;
+  background: TTailwindString;
+  icon: TTailwindString;
 }
+
+const styles: Record<ButtonType, ButtonStyle> = {
+  confirm: {
+    text: classnames("text-blue-50"),
+    background: classnames("bg-blue-600", "hover:bg-blue-500"),
+    icon: classnames("text-blue-500", "hover:text-blue-400"),
+  },
+  cancel: {
+    text: classnames("text-gray-50"),
+    background: classnames("bg-gray-500", "hover:bg-gray-400"),
+    icon: classnames("text-gray-400", "hover:text-gray-300"),
+  },
+  delete: {
+    text: classnames("text-red-50"),
+    background: classnames("bg-red-600", "hover:bg-red-500"),
+    icon: classnames("text-red-500", "hover:text-red-400"),
+  },
+  create: {
+    text: classnames("text-green-50"),
+    background: classnames("bg-green-600", "hover:bg-green-500"),
+    icon: classnames("text-green-500", "hover:text-green-400"),
+  },
+};
 
 export function SubmitButton(props: {
   disabled?: boolean;
-  classNames?: TTailwindString;
+  className?: TTailwindString;
 }): JSX.Element {
   return (
     <input
       className={classnames(
-        Styles.solidTextButton("confirm"),
-        props.classNames
+        styles["confirm"]["text"],
+        styles["confirm"]["background"],
+        "cursor-pointer",
+        "py-1",
+        "px-3",
+        "font-medium",
+        "rounded-md",
+        props.className
       )}
       type="submit"
       value="Submit"
@@ -114,7 +65,13 @@ export function IconButton(props: {
   onClick: () => void;
 }) {
   return React.createElement(props.icon, {
-    className: classnames(Styles.iconButton(props.type), props.className),
+    className: classnames(
+      styles[props.type]["icon"],
+      "cursor-pointer",
+      "w-5",
+      "h-5",
+      props.className
+    ),
     onClick: props.onClick,
   });
 }
@@ -123,14 +80,20 @@ export function LabelledButton(props: {
   type: ButtonType;
   label: string;
   disabled?: boolean;
-  classNames?: TTailwindString;
+  className?: TTailwindString;
   onClick: () => void;
 }) {
   return (
     <button
       className={classnames(
-        Styles.solidTextButton(props.type),
-        props.classNames
+        styles[props.type]["text"],
+        styles[props.type]["background"],
+        "cursor-pointer",
+        "py-1",
+        "px-3",
+        "font-medium",
+        "rounded-md",
+        props.className
       )}
       disabled={props.disabled}
       onClick={props.onClick}
