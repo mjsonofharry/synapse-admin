@@ -35,6 +35,16 @@ export default function Modal(props: {
         "backdrop-blur-md"
       )}
     >
+      <div
+        className={classnames(
+          "fixed",
+          "w-screen",
+          "h-screen",
+          "bg-gray-900",
+          "opacity-25",
+          "z-10"
+        )}
+      />
       <article
         onClick={(event) => event.stopPropagation()}
         className={classnames(
@@ -47,7 +57,8 @@ export default function Modal(props: {
           "flex-col",
           "pt-1",
           "px-4",
-          "pb-4"
+          "pb-4",
+          "z-30"
         )}
       >
         <header className={classnames("flex", "w-full")}>
