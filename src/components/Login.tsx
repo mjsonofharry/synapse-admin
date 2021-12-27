@@ -74,7 +74,7 @@ export default function Login(props: {
         <label className={classnames("my-2", "flex", "justify-between")}>
           Matrix server:
           <input
-            className={classnames("mx-2")}
+            className={classnames("mx-2", "px-2")}
             type="text"
             value={server}
             onChange={(event) => setServer(event.target.value)}
@@ -86,7 +86,7 @@ export default function Login(props: {
         <label className={classnames("my-2", "flex", "justify-between")}>
           Username:
           <input
-            className={classnames("mx-2")}
+            className={classnames("mx-2", "px-2")}
             type="text"
             value={user}
             onChange={(event) => setUser(event.target.value)}
@@ -98,7 +98,7 @@ export default function Login(props: {
         <label className={classnames("my-2", "flex", "justify-between")}>
           Password:
           <input
-            className={classnames("mx-2")}
+            className={classnames("mx-2", "px-2")}
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}

@@ -110,7 +110,7 @@ function FilterControls(props: {
       <label className={classnames("leading-loose")}>
         User ID:
         <input
-          className={classnames("mx-2", "leading-loose")}
+          className={classnames("mx-2", "px-2", "leading-loose")}
           type={"text"}
           value={props.filters.user_id}
           onChange={(event) =>
@@ -122,7 +122,7 @@ function FilterControls(props: {
       <label className={classnames("leading-loose")}>
         Name:
         <input
-          className={classnames("mx-2", "leading-loose")}
+          className={classnames("mx-2", "px-2", "leading-loose")}
           type={"text"}
           value={props.filters.name}
           onChange={(event) =>
@@ -134,7 +134,7 @@ function FilterControls(props: {
       <label className={classnames("leading-loose")}>
         Guests:
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "px-2")}
           type={"checkbox"}
           checked={props.filters.guests ?? false}
           onChange={() =>
@@ -148,7 +148,7 @@ function FilterControls(props: {
       <label className={classnames("leading-loose")}>
         Deactivated:
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "px-2")}
           type={"checkbox"}
           checked={props.filters.deactivated ?? false}
           onChange={() =>
@@ -194,9 +194,9 @@ export default function Users(props: { authInfo: AuthInfo }): JSX.Element {
     displayname: { label: "Name" },
     avatar_url: {
       label: "Avatar",
-      formatter: (mxc: string) => {
-        return <Avatar server={props.authInfo.server} mxc={mxc} />;
-      },
+      formatter: (mxc: string) => (
+        <Avatar server={props.authInfo.server} mxc={mxc} />
+      ),
     },
     creation_ts: { label: "Created", formatter: Formatters.date },
   };

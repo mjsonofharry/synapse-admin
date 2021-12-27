@@ -11,8 +11,8 @@ const headerCellStyles = classnames(
 );
 
 const dataCellStyles = classnames(
-  "pl-1",
-  "pr-2",
+  "pl-3",
+  "pr-4",
   "ml-1",
   "text-base",
   "max-w-xs",

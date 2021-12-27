@@ -5,7 +5,7 @@ import { AuthInfo } from "./Login";
 import Table, { ColumnDefs, Formatters } from "./generic/Table";
 import { ContentCard } from "./generic/Content";
 import { classnames } from "tailwindcss-classnames";
-import { PlusCircleIcon, XIcon } from "@heroicons/react/solid";
+import { EyeIcon, EyeOffIcon, XIcon } from "@heroicons/react/solid";
 import { IconButton, LabelledButton, SubmitButton } from "./generic/Button";
 import Modal from "./generic/Modal";
 
@@ -25,25 +25,59 @@ interface RegistrationToken {
 }
 
 const columns: ColumnDefs<RegistrationToken> = {
-  token: { label: "Token" },
+  token: {
+    label: "Token",
+    formatter: (token: string) => <TokenCell token={token} />,
+  },
   uses_allowed: { label: "Max Uses" },
   pending: { label: "Pending Uses" },
   completed: { label: "Completed Uses" },
   expiry_time: { label: "Expiry", formatter: Formatters.date },
 };
 
+function TokenCell(props: { token: string }): JSX.Element {
+  const [hidden, setHidden] = useState(true);
+  if (hidden) {
+    return (
+      <>
+        <IconButton
+          type="cancel"
+          icon={EyeOffIcon}
+          onClick={() => setHidden(false)}
+          className={classnames("inline", "mr-2")}
+        />
+        <span className={classnames("italic")}>Hidden</span>
+      </>
+    );
+  } else {
+    return (
+      <>
+        <IconButton
+          type="cancel"
+          icon={EyeIcon}
+          onClick={() => setHidden(true)}
+          className={classnames("inline", "mr-2")}
+        />
+        <span>{props.token}</span>
+      </>
+    );
+  }
+}
+
 function CreateTokenForm(props: {
   authInfo: AuthInfo;
   onSubmit: () => void;
   onLoad: () => void;
 }) {
-  const today = Formatters.dateInput(new Date());
-  const now = Formatters.hourInput(new Date());
+  const now = new Date();
+  const today = Formatters.dateInput(now);
   const [token, setToken] = useState<string | null>(null);
   const [usesAllowed, setUsesAllowed] = useState(1);
   const [expiryDate, setExpiryDate] = useState<string>(today);
   const [expiryTime, setExpiryTime] = useState<string>("23:59");
   const [length, setLength] = useState<number | null>(null);
+  const expiryTimestamp = Date.parse(`${expiryDate}T${expiryTime}`);
+  const invalidTimestamp = now.getTime() > expiryTimestamp;
 
   return (
     <form
@@ -54,23 +88,27 @@ function CreateTokenForm(props: {
           ...(token ? { token: token } : {}),
           ...(length ? { length: length } : {}),
           uses_allowed: usesAllowed,
-          expiry_time: Date.parse(`${expiryDate}T${expiryTime}`),
+          expiry_time: expiryTimestamp,
         };
-        handleFetch<any>({
+        handleFetch<unknown>({
           url: `https://${props.authInfo.server}/_synapse/admin/v1/registration_tokens/new`,
           method: "POST",
           token: props.authInfo.token,
           body: JSON.stringify(body),
-          onLoad: (data) => props.onLoad(),
+          onLoad: () => props.onLoad(),
           onError: () => alert("Token creation failed"),
         });
         props.onSubmit();
       }}
     >
+      <p className={classnames("font-extralight")}>
+        For a randomly generated registration token, leave the name field blank
+        and select the desired token length.
+      </p>
       <label className={classnames("my-2", "flex", "justify-between")}>
         Name (optional):
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "px-2")}
           type="text"
           value={token ?? ""}
           onChange={(event) => setToken(event.target.value)}
@@ -82,7 +120,7 @@ function CreateTokenForm(props: {
       <label className={classnames("my-2", "flex", "justify-between")}>
         Uses Allowed:
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "px-2")}
           type="number"
           value={usesAllowed}
           onChange={(event) => setUsesAllowed(parseInt(event.target.value))}
@@ -94,7 +132,7 @@ function CreateTokenForm(props: {
       <label className={classnames("my-2", "flex", "justify-between")}>
         Expiry Date:
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "px-2")}
           type="date"
           value={expiryDate}
           onChange={(event) => setExpiryDate(event.target.value)}
@@ -106,7 +144,7 @@ function CreateTokenForm(props: {
       <label className={classnames("my-2", "flex", "justify-between")}>
         Expiry Time:
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "px-2")}
           type="time"
           value={expiryTime}
           onChange={(event) => setExpiryTime(event.target.value)}
@@ -117,7 +155,7 @@ function CreateTokenForm(props: {
       <label className={classnames("my-2", "flex", "justify-between")}>
         Length (optional):
         <input
-          className={classnames("mx-2")}
+          className={classnames("mx-2", "px-2")}
           type="number"
           value={length ?? 16}
           onChange={(event) => setLength(parseInt(event.target.value))}
@@ -125,7 +163,15 @@ function CreateTokenForm(props: {
           min={1}
         />
       </label>
-      <SubmitButton className={classnames("mt-auto")} />
+      {invalidTimestamp && (
+        <p className={classnames("text-red-500")}>
+          Expiry date is set in the past!
+        </p>
+      )}
+      <SubmitButton
+        className={classnames("mt-auto")}
+        disabled={invalidTimestamp}
+      />
     </form>
   );
 }

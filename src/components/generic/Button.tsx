@@ -63,6 +63,7 @@ export function IconButton(props: {
   disabled?: boolean;
   className?: TTailwindString;
   onClick: () => void;
+  title?: string;
 }) {
   return React.createElement(props.icon, {
     className: classnames(
