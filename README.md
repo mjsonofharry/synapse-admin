@@ -1,3 +1,9 @@
+# Synapse Admin
+
+This is a WIP frontend for the Synapse Matrix homeserver admin API. Admins can log in with their Matrix credentials and interact with the admin API via a friendly interface.
+
+Warning: do not expose the admin API of your production Synapse homeserver to the public internet.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
